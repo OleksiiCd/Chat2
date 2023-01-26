@@ -13,7 +13,7 @@ const socket = io.connect('http://localhost:5000')
 const Chat = () => {
   const [state, setState] = useState([]);
   const { search } = useLocation();
-  const [params, setParams] = useState(null);
+  const [params, setParams] = useState({ room: "", user: ""});
   const [message, setMessage] = useState("");
   const [isOpen, setOpen] = useState(false);
 
@@ -32,6 +32,7 @@ const Chat = () => {
 
   const leftRoom = () => {};
   const handleChange = () => {};
+  const handleSubmit = () => {};
   const onEmojiClick = () => setOpen(!isOpen);
 
 
@@ -49,7 +50,9 @@ const Chat = () => {
       </button>
       </div>
       <div className={styles.messages}>
-      {state.map(({message}) => <span>{ message }</span>)}
+      {state.map(({ message }, i) => (
+      <span key={i}>{ message }</span>
+      ))}
      </div>
      <form className={styles.form}>
      <div className={styles.input}>
@@ -64,13 +67,12 @@ const Chat = () => {
             required
             />   
         </div>
-        <div className={styles.emojies}>
+        <div className={styles.emoji}>
           <img src={ icon } alt="" />
             {isOpen && (
               <div className={styles.emojies}>
-              <EmojiPicker onEmojiClick={onEmojiClick} />
-            
-            </div>
+              <EmojiPicker onEmojiClick={onEmojiClick} />            
+              </div>
             )}
           </div>
           <div className={styles.button}>
