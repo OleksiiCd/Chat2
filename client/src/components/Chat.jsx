@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import EmojiPicker from 'emoji-picker-react'
+import Messages from './Messages'
 
 import icon from '../images/emoji.svg'
 import styles from '../styles/Chat.module.css'
@@ -26,14 +27,18 @@ const Chat = () => {
   useEffect(() => {
     socket.on('message', ({ data }) => {
       setState((_state) => ([..._state, data]));
+      console.log(data)
     });
     
   }, []);
 
   const leftRoom = () => {};
-  const handleChange = () => {};
+
+  const handleChange = ({target: {value}}) => setMessage(value);
+
   const handleSubmit = () => {};
-  const onEmojiClick = () => setOpen(!isOpen);
+
+  const onEmojiClick = ({emoji}) => setMessage(`${message} ${emoji}`)
 
 
   return (
@@ -49,11 +54,7 @@ const Chat = () => {
         Left Room
       </button>
       </div>
-      <div className={styles.messages}>
-      {state.map(({ message }, i) => (
-      <span key={i}>{ message }</span>
-      ))}
-     </div>
+      <Messages messages={state} name={params.name} />
      <form className={styles.form}>
      <div className={styles.input}>
         
@@ -68,7 +69,7 @@ const Chat = () => {
             />   
         </div>
         <div className={styles.emoji}>
-          <img src={ icon } alt="" />
+          <img src={ icon } alt="" onClick={() => setOpen(!isOpen)} />
             {isOpen && (
               <div className={styles.emojies}>
               <EmojiPicker onEmojiClick={onEmojiClick} />            

@@ -1,5 +1,6 @@
 const { trimString } = require ('./utils');
 
+
 let users = [];
 
 const addUser = (user) => {

@@ -22,7 +22,7 @@ io.on('connection', (socket) => {
     socket.on('join', ({ name, room }) => {
        socket.join(room); 
 
-       const { user } = addUser({name, room});
+       const {user} = addUser({name, room});
 
        socket.emit('message', {
         data: { user: {name: "Admin", message: `Hey my love ${user.name}`}}
@@ -39,5 +39,5 @@ io.on('connection', (socket) => {
 })
 
 server.listen(5000, () => {
-    console.log('Server running...');
+    console.log('Server is working');
 });
