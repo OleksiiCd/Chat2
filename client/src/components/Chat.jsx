@@ -1,7 +1,7 @@
 import React from 'react'
 import io from 'socket.io-client'
 import { useEffect } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import EmojiPicker from 'emoji-picker-react'
 import Messages from './Messages'
@@ -12,31 +12,52 @@ import styles from '../styles/Chat.module.css'
 const socket = io.connect('http://localhost:5000')
 
 const Chat = () => {
+  const navigate = useNavigate();
   const [state, setState] = useState([]);
   const { search } = useLocation();
   const [params, setParams] = useState({ room: "", user: ""});
   const [message, setMessage] = useState("");
   const [isOpen, setOpen] = useState(false);
+  const [users, setUsers] = useState(0);
 
   useEffect(() => {
     const searchParams = Object.fromEntries(new URLSearchParams(search));
     setParams(searchParams);
     socket.emit('join', searchParams);
+
+    return() => {
+      socket.off();
+    };
   }, [search]);
 
   useEffect(() => {
     socket.on('message', ({ data }) => {
-      setState((_state) => ([..._state, data]));
-      console.log(data)
+      setState((_state) => [..._state, data]);
+    });
+   }, []);
+  
+    useEffect(() => {
+    socket.on('room', ({ data: { users } }) => {
+      setUsers(users.length);
     });
     
   }, []);
 
-  const leftRoom = () => {};
+  const leftRoom = () => {
+    socket.emit('leftRoom', { params });
+    navigate('/'); 
+  };
 
   const handleChange = ({target: {value}}) => setMessage(value);
 
-  const handleSubmit = () => {};
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if(!message) return;
+
+    socket.emit('sendMessage', { message, params });
+    setMessage("");
+  };
 
   const onEmojiClick = ({emoji}) => setMessage(`${message} ${emoji}`)
 
@@ -48,14 +69,16 @@ const Chat = () => {
         {params.room}
       </div>
       <div className={styles.users}>
-        0 users in this room
+        {users} users in this room
       </div>
       <button className={styles.left} onClick={leftRoom}>
         Left Room
       </button>
       </div>
+      <div className={styles.messages}>
       <Messages messages={state} name={params.name} />
-     <form className={styles.form}>
+      </div>
+     <form className={styles.form} onSubmit={handleSubmit}>
      <div className={styles.input}>
         
         <input 
